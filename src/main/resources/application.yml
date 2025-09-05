@@ -3,9 +3,9 @@ spring:
     name: bank-management-system
   
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/bank_management}
-    username: ${DATABASE_USERNAME:postgres}
-    password: ${DATABASE_PASSWORD:password}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 3
@@ -32,8 +32,8 @@ spring:
   
   security:
     user:
-      name: ${ADMIN_USERNAME:admin}
-      password: ${ADMIN_PASSWORD:admin}
+      name: ${ADMIN_USERNAME}
+      password: ${ADMIN_PASSWORD}
 
 server:
   port: 8080
@@ -46,5 +46,5 @@ logging:
 
 # JWT Configuration
 jwt:
-  secret: ${JWT_SECRET:change-this-in-production}
+  secret: ${JWT_SECRET}
   expiration: 86400000 # 24 hours in milliseconds
