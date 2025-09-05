@@ -1,24 +1,29 @@
-# Use OpenJDK 17 as base image
-FROM openjdk:17-jdk-slim
+# Use Maven with OpenJDK 17 as base image
+FROM maven:3.9.4-openjdk-17-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy Maven wrapper and pom.xml
-COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
-
-# Make mvnw executable
-RUN chmod +x ./mvnw
+# Copy pom.xml first for better layer caching
+COPY pom.xml ./
 
 # Download dependencies
-RUN ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY src ./src
 
 # Build the application
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
+
+# Use OpenJDK 17 runtime image for smaller final image
+FROM openjdk:17-jdk-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy the built JAR from the build stage
+COPY --from=0 /app/target/bank-management-system-0.0.1-SNAPSHOT.jar app.jar
 
 # Create non-root user for security
 RUN addgroup --system spring && adduser --system spring --ingroup spring
@@ -35,4 +40,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8080/api/accounts/count || exit 1
 
 # Run the application
-CMD ["java", "-jar", "target/bank-management-system-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"]
+CMD ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
