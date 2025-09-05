@@ -1,5 +1,5 @@
 # Use Maven with OpenJDK 17 as base image
-FROM maven:3.9-openjdk-17-slim
+FROM maven:3.9-openjdk-17
 
 # Set working directory
 WORKDIR /app
@@ -17,13 +17,13 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Use OpenJDK 17 runtime image for smaller final image
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-jre-slim
 
 # Set working directory
 WORKDIR /app
 
 # Copy the built JAR from the build stage
-COPY --from=0 /app/target/bank-management-system-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=0 /app/target/bank-management-system-1.0.0.jar app.jar
 
 # Create non-root user for security
 RUN addgroup --system spring && adduser --system spring --ingroup spring
@@ -37,7 +37,7 @@ EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8080/api/accounts/count || exit 1
+  CMD curl -f http://localhost:8080/ || exit 1
 
 # Run the application
 CMD ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
