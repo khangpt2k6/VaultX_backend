@@ -1,5 +1,5 @@
 # Use Maven with OpenJDK 17 as base image
-FROM maven:3.9.6-openjdk-17
+FROM maven:3.9-openjdk-17-slim
 
 # Set working directory
 WORKDIR /app
